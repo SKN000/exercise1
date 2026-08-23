@@ -78,12 +78,18 @@ function main() {
     var imagedata = context.createImageData(w,h);
  
     // Draw a rectangle with pixels
-    var c = new Color(0,0,0,255); // the color at the pixel: black opaque
-    for (var x=50; x<100; x++) 
-        for (var y=50; y<75; y++) {
+    // changed from the original: bigger, moved toward the center, and
+    // colored with a horizontal red->blue ramp instead of flat black
+    var left = 150, right = 380;   // was 50..100
+    var top  = 120, bottom = 300;  // was 50..75
+
+    var c = new Color(255,0,0,255); // start of the ramp: opaque red
+    for (var x=left; x<right; x++) {
+        var t = (x - left) / (right - left); // 0 at the left edge, 1 at the right
+        c.change(Math.round(255*(1-t)), 40, Math.round(255*t), 255);
+        for (var y=top; y<bottom; y++)
             drawPixel(imagedata,x,y,c);
-            // console.log("draw at " +x+ " " +y);
-        }
-    
+    }
+
     context.putImageData(imagedata, 0, 0); // display the image in the context
 }
