@@ -77,18 +77,33 @@ function main() {
     var h = context.canvas.height;  // as set in html
     var imagedata = context.createImageData(w,h);
  
-    // Draw a rectangle with pixels
-    // changed from the original: bigger, moved toward the center, and
-    // colored with a horizontal red->blue ramp instead of flat black
-    var left = 150, right = 380;   // was 50..100
-    var top  = 120, bottom = 300;  // was 50..75
+    // Draw a Burberry-style check swatch, pixel by pixel.
+    // Each axis gets the same stripe pattern; crossing them by averaging
+    // is what gives woven plaid its characteristic blended squares.
+    var CAMEL = [206,178,134], BLACK = [28,24,22],
+        WHITE = [246,244,238], RED   = [178,42,40];
 
-    var c = new Color(255,0,0,255); // start of the ramp: opaque red
-    for (var x=left; x<right; x++) {
-        var t = (x - left) / (right - left); // 0 at the left edge, 1 at the right
-        c.change(Math.round(255*(1-t)), 40, Math.round(255*t), 255);
-        for (var y=top; y<bottom; y++)
+    var PERIOD = 64;
+    function stripe(i) { // color of the stripe running through offset i
+        var q = ((i % PERIOD) + PERIOD) % PERIOD;
+        if (q < 2)  return WHITE;         // thin white guard line
+        if (q < 12) return BLACK;         // wide black band
+        if (q < 14) return WHITE;         // thin white guard line
+        if (q >= 38 && q < 40) return RED; // lone red accent in the camel field
+        return CAMEL;
+    }
+
+    var left = 128, top = 128, size = 256; // a 256x256 swatch, centered
+    var c = new Color(0,0,0,255);
+    for (var x=left; x<left+size; x++) {
+        var sx = stripe(x-left);
+        for (var y=top; y<top+size; y++) {
+            var sy = stripe(y-top);
+            c.change(Math.round((sx[0]+sy[0])/2),
+                     Math.round((sx[1]+sy[1])/2),
+                     Math.round((sx[2]+sy[2])/2), 255);
             drawPixel(imagedata,x,y,c);
+        }
     }
 
     context.putImageData(imagedata, 0, 0); // display the image in the context
