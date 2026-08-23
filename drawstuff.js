@@ -77,34 +77,22 @@ function main() {
     var h = context.canvas.height;  // as set in html
     var imagedata = context.createImageData(w,h);
  
-    // Draw a Burberry-style check swatch, pixel by pixel.
-    // Each axis gets the same stripe pattern; crossing them by averaging
-    // is what gives woven plaid its characteristic blended squares.
-    var CAMEL = [206,178,134], BLACK = [28,24,22],
-        WHITE = [246,244,238], RED   = [178,42,40];
+    // Draw the flag of England (St George's Cross), pixel by pixel.
+    var RED = [206,17,38], WHITE = [255,255,255];
 
-    var PERIOD = 64;
-    function stripe(i) { // color of the stripe running through offset i
-        var q = ((i % PERIOD) + PERIOD) % PERIOD;
-        if (q < 2)  return WHITE;         // thin white guard line
-        if (q < 12) return BLACK;         // wide black band
-        if (q < 14) return WHITE;         // thin white guard line
-        if (q >= 38 && q < 40) return RED; // lone red accent in the camel field
-        return CAMEL;
-    }
+    var fw = 300, fh = 180;             // 5:3 flag
+    var left = (w-fw)>>1, top = (h-fh)>>1; // centered on the canvas
+    var thick = fh/5;                   // cross is one fifth of the height
+    var cx = left + fw/2, cy = top + fh/2;
 
-    var left = 128, top = 128, size = 256; // a 256x256 swatch, centered
     var c = new Color(0,0,0,255);
-    for (var x=left; x<left+size; x++) {
-        var sx = stripe(x-left);
-        for (var y=top; y<top+size; y++) {
-            var sy = stripe(y-top);
-            c.change(Math.round((sx[0]+sy[0])/2),
-                     Math.round((sx[1]+sy[1])/2),
-                     Math.round((sx[2]+sy[2])/2), 255);
+    for (var x=left; x<left+fw; x++)
+        for (var y=top; y<top+fh; y++) {
+            var onCross = Math.abs(x-cx) < thick/2 || Math.abs(y-cy) < thick/2;
+            var col = onCross ? RED : WHITE;
+            c.change(col[0],col[1],col[2],255);
             drawPixel(imagedata,x,y,c);
         }
-    }
 
     context.putImageData(imagedata, 0, 0); // display the image in the context
 }
